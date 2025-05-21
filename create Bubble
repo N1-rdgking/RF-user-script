@@ -1,0 +1,58 @@
+// ==UserScript==
+// @name     Bulles flottantes sur le côté
+// @namespace  http://tampermonkey.net
+// @version   1.0
+// @description Ajoute des bulles colorées animées sur le côté de la page
+// @author    N1-rdgking
+// @match    *://*/*
+// @grant    none
+// ==/UserScript==
+
+(function() {
+'use strict';
+
+// Ajoute un conteneur pour les bulles
+const container = document.createElement('div');
+container.style.position = 'fixed';
+container.style.top = '0';
+container.style.right = '0';
+container.style.width = '120px';
+container.style.height = '100vh';
+container.style.pointerEvents = 'none';
+container.style.zIndex = '99999';
+document.body.appendChild(container);
+
+function randomColor() {
+const colors = ['#FF5E5B', '#FFB400', '#00CECB', '#6A4C93', '#1BE7FF', '#76FF7A'];
+return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function createBubble() {
+const bubble = document.createElement('div');
+const size = Math.random() * 30 + 20;
+bubble.style.width = `${size}px`;
+bubble.style.height = `${size}px`;
+bubble.style.borderRadius = '50%';
+bubble.style.background = randomColor();
+bubble.style.position = 'absolute';
+bubble.style.right = `${Math.random() * 60}px`;
+bubble.style.bottom = '-40px';
+bubble.style.opacity = Math.random() * 0.5 + 0.5;
+bubble.style.filter = 'blur(0.5px)';
+bubble.style.transition = 'bottom 5s linear, opacity 5s linear';
+
+container.appendChild(bubble);
+
+setTimeout(() => {
+bubble.style.bottom = '100vh';
+bubble.style.opacity = '0';
+}, 10);
+
+setTimeout(() => {
+bubble.remove();
+}, 5100);
+}
+
+// Crée une bulle toutes les 500ms
+setInterval(createBubble, 500);
+})();

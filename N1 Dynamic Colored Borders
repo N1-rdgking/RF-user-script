@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         N1 Dynamic Colored Borders
+// @name         Dynamic Colored Borders
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      v2
 // @description  Ajoute des bordures colorées et animées sur les 4 côtés de la page
 // @author       RF clan buy RDG KING
 // @match        *://*/*

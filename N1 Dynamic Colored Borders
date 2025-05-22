@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      v2
 // @description  Ajoute des bordures colorées et animées sur les 4 côtés de la page
-// @author       RF clan buy RDG KING
+// @author       RF clan by RDG KING
 // @match        *://*/*
 // @grant        none
 // ==/UserScript==

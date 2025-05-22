@@ -1,0 +1,116 @@
+// ==UserScript==
+// @name         crosshair with Color Transition
+// @namespace    http://tampermonkey.net/
+// @version      1.1
+// @description  Adds a centered, on-screen crosshair similar to the image, with rounded bars and smoothly changing colors
+// @author       RF clan buy RDGKING
+// @match        https://narrow.one/
+// @grant        none
+// ==/UserScript==
+
+(function () {
+    'use strict';
+
+    // crosshair Settings
+    const size = 90; // Total canvas size
+    const barLength = 30; //Length of bars
+    const barThickness = 7; // Bar thickness
+    const barRadius = 6; // Arrondi des bords
+    const transitionDuration = 2200; // ms for color transition
+
+    // change with ur color
+    const colors = [
+        "#0044ff", // Bleu vif
+        "#00ffd0", // Cyan
+        "#00ff2a", // Vert
+        "#ffff00", // Jaune
+        "#ff8800", // Orange
+        "#ff1c1c", // Rouge
+        "#d900ff" // Violet
+    ];
+
+    // Création du canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    canvas.style.position = 'fixed';
+    canvas.style.left = '50%';
+    canvas.style.top = '50%';
+    canvas.style.transform = 'translate(-50%, -50%)';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = 999999;
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+
+    // Fonction pour dessiner une barre arrondie
+    function drawBar(cx, cy, w, h, angle, color) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(-w / 2 + barRadius, -h / 2);
+        ctx.lineTo(w / 2 - barRadius, -h / 2);
+        ctx.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + barRadius);
+        ctx.lineTo(w / 2, h / 2 - barRadius);
+        ctx.quadraticCurveTo(w / 2, h / 2, w / 2 - barRadius, h / 2);
+        ctx.lineTo(-w / 2 + barRadius, h / 2);
+        ctx.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - barRadius);
+        ctx.lineTo(-w / 2, -h / 2 + barRadius);
+        ctx.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + barRadius, -h / 2);
+        ctx.closePath();
+        // Ombre blanche
+        ctx.shadowColor = "#fff";
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Interpolation de couleurs hexadécimales
+    function lerpColor(a, b, t) {
+        const ah = parseInt(a.replace('#', ''), 16);
+        const bh = parseInt(b.replace('#', ''), 16);
+        const ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+        const br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+        const rr = Math.round(ar + (br - ar) * t);
+        const rg = Math.round(ag + (bg - ag) * t);
+        const rb = Math.round(ab + (bb - ab) * t);
+        return '#' + ((1 << 24) | (rr << 16) | (rg << 8) | rb).toString(16).slice(1);
+    }
+
+    // Animation
+    let colorIdx = 0;
+    let lastTime = performance.now();
+
+    function animate() {
+        const now = performance.now();
+        const elapsed = (now - lastTime) % transitionDuration;
+        const t = elapsed / transitionDuration;
+        const nextIdx = (colorIdx + 1) % colors.length;
+        const color = lerpColor(colors[colorIdx], colors[nextIdx], t);
+
+        // Nettoyer
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Position centrale
+        const cx = size / 2;
+        const cy = size / 2;
+
+        // Déplacement léger pour ressembler au viseur image
+        // Barres horizontales (gauche et droite)
+        drawBar(cx - 24, cy + 0, barLength, barThickness, 0, color);
+        drawBar(cx + 24, cy + 0, barLength, barThickness, 0, color);
+        // Barre verticale (bas)
+        drawBar(cx, cy + 27, barThickness, barLength, 0, color);
+
+        // Avance la couleur
+        if (elapsed > transitionDuration - 20) {
+            colorIdx = nextIdx;
+            lastTime = now;
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+})();

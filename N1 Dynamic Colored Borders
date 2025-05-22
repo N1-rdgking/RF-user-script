@@ -1,0 +1,71 @@
+// ==UserScript==
+// @name         N1 Dynamic Colored Borders
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Ajoute des bordures colorées et animées sur les 4 côtés de la page
+// @author       RF clan buy RDG KING
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Crée quatre divs pour chaque bordure
+    const borders = ["top", "right", "bottom", "left"];
+    const borderDivs = {};
+
+    borders.forEach((side) => {
+        const div = document.createElement("div");
+        div.style.position = "fixed";
+        div.style.zIndex = "999999";
+        div.style.pointerEvents = "none";
+        switch (side) {
+            case "top":
+                div.style.top = "0";
+                div.style.left = "0";
+                div.style.width = "100vw";
+                div.style.height = "8px";
+                break;
+            case "bottom":
+                div.style.bottom = "0";
+                div.style.left = "0";
+                div.style.width = "100vw";
+                div.style.height = "8px";
+                break;
+            case "left":
+                div.style.top = "0";
+                div.style.left = "0";
+                div.style.width = "8px";
+                div.style.height = "100vh";
+                break;
+            case "right":
+                div.style.top = "0";
+                div.style.right = "0";
+                div.style.width = "8px";
+                div.style.height = "100vh";
+                break;
+        }
+        div.style.background = "linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)";
+        document.body.appendChild(div);
+        borderDivs[side] = div;
+    });
+
+    // Animation des couleurs
+    let tick = 0;
+    function animateBorders() {
+        tick += 1;
+        borders.forEach((side, idx) => {
+            const offset = tick + idx * 40;
+            const color1 = `hsl(${(offset) % 360}, 100%, 50%)`;
+            const color2 = `hsl(${(offset + 60) % 360}, 100%, 50%)`;
+            const color3 = `hsl(${(offset + 120) % 360}, 100%, 50%)`;
+            // Ajuste l’angle du dégradé selon la bordure
+            const angle = (side === "top" || side === "bottom") ? 90 : 180;
+            borderDivs[side].style.background = `linear-gradient(${angle}deg, ${color1}, ${color2}, ${color3})`;
+        });
+        requestAnimationFrame(animateBorders);
+    }
+
+    animateBorders();
+})();

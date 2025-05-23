@@ -1,0 +1,42 @@
+// ==UserScript==
+// @name         Displays the current time
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Displays the current time in the center of the bottom of the window
+// @author       RF clan by RDG KING
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Creating the element to display the time
+    const heureDiv = document.createElement('div');
+    heureDiv.id = 'afficher-heure-tampermonkey';
+    heureDiv.style.position = 'fixed';
+    heureDiv.style.left = '10%';
+    heureDiv.style.bottom = '0';
+    heureDiv.style.transform = 'translateX(-50%)';
+    heureDiv.style.background = 'rgba(0,0,0,0.8)';//change color
+    heureDiv.style.color = 'rgb(3, 211, 252)';
+    heureDiv.style.padding = '8px 18px';
+    heureDiv.style.fontSize = '2em';
+    heureDiv.style.borderRadius = '12px 12px 0 0';
+    heureDiv.style.zIndex = '99999';
+    heureDiv.style.fontFamily = 'monospace';
+
+    document.body.appendChild(heureDiv);
+
+    function updateHeure() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2,'0');
+        const m = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
+        heureDiv.textContent = `${h}:${m}:${s}`;
+    }
+
+    setInterval(updateHeure, 1000);
+    updateHeure();
+})();
+// code by RDG KING Narrow one

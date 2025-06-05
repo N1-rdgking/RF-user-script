@@ -1,0 +1,148 @@
+// ==UserScript==
+// @name         Narrow One Custom Crosshair
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Ajoute un viseur personnalisable en forme de + à Narrow One, avec une fenêtre de configuration accessible via ';'
+// @author       Copilot
+// @match         https://narrow.one/
+// @grant        none
+// ==/UserScript==
+//press ; to open menu 
+(function() {
+    'use strict';
+
+    // Paramètres du viseur
+    let crosshairColor = "#ff0000";
+    let crosshairThickness = 2;
+    let crosshairLength = 18;
+    let crosshairGap = 6;
+
+    // Créer le canvas du viseur
+    const crosshairCanvas = document.createElement('canvas');
+    crosshairCanvas.style.position = 'fixed';
+    crosshairCanvas.style.top = '0';
+    crosshairCanvas.style.left = '0';
+    crosshairCanvas.style.width = '100vw';
+    crosshairCanvas.style.height = '100vh';
+    crosshairCanvas.style.pointerEvents = 'none';
+    crosshairCanvas.style.zIndex = '9999';
+    crosshairCanvas.width = window.innerWidth;
+    crosshairCanvas.height = window.innerHeight;
+    document.body.appendChild(crosshairCanvas);
+
+    function drawCrosshair() {
+        const ctx = crosshairCanvas.getContext('2d');
+        ctx.clearRect(0, 0, crosshairCanvas.width, crosshairCanvas.height);
+
+        const centerX = crosshairCanvas.width / 2;
+        const centerY = crosshairCanvas.height / 2;
+
+        ctx.strokeStyle = crosshairColor;
+        ctx.lineWidth = crosshairThickness;
+        ctx.lineCap = 'round';
+
+        // Ligne verticale haut
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - crosshairGap - crosshairLength);
+        ctx.lineTo(centerX, centerY - crosshairGap);
+        ctx.stroke();
+
+        // Ligne verticale bas
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY + crosshairGap);
+        ctx.lineTo(centerX, centerY + crosshairGap + crosshairLength);
+        ctx.stroke();
+
+        // Ligne horizontale gauche
+        ctx.beginPath();
+        ctx.moveTo(centerX - crosshairGap - crosshairLength, centerY);
+        ctx.lineTo(centerX - crosshairGap, centerY);
+        ctx.stroke();
+
+        // Ligne horizontale droite
+        ctx.beginPath();
+        ctx.moveTo(centerX + crosshairGap, centerY);
+        ctx.lineTo(centerX + crosshairGap + crosshairLength, centerY);
+        ctx.stroke();
+    }
+
+    // Redessiner lors du resize
+    window.addEventListener('resize', () => {
+        crosshairCanvas.width = window.innerWidth;
+        crosshairCanvas.height = window.innerHeight;
+        drawCrosshair();
+    });
+
+    // Configuration UI
+    let configOpen = false;
+    const configDiv = document.createElement('div');
+    configDiv.style.position = 'fixed';
+    configDiv.style.top = '30px';
+    configDiv.style.right = '30px';
+    configDiv.style.background = 'rgba(30, 30, 30, 0.95)';
+    configDiv.style.padding = '20px';
+    configDiv.style.borderRadius = '10px';
+    configDiv.style.zIndex = '10000';
+    configDiv.style.display = 'none';
+    configDiv.style.color = '#fff';
+    configDiv.style.boxShadow = '0 8px 24px rgba(0,0,0,0.4)';
+    configDiv.innerHTML = `
+        <div style="font-weight:bold;font-size:18px;margin-bottom:10px;">Viseur (+) Personnalisé</div>
+        <label>Couleur :
+            <input type="color" id="crosshair-color" value="${crosshairColor}" style="vertical-align:middle;">
+        </label>
+        <br><br>
+        <label>Épaisseur :
+            <input type="number" id="crosshair-thickness" value="${crosshairThickness}" min="1" max="10" style="width:50px;">
+        </label>
+        <br><br>
+        <label>Longueur :
+            <input type="number" id="crosshair-length" value="${crosshairLength}" min="5" max="50" style="width:50px;">
+        </label>
+        <br><br>
+        <label>Gap (espace central) :
+            <input type="number" id="crosshair-gap" value="${crosshairGap}" min="0" max="20" style="width:50px;">
+        </label>
+        <br><br>
+        <button id="close-crosshair-config" style="margin-top:6px;">Fermer</button>
+    `;
+    document.body.appendChild(configDiv);
+
+    // Gestionnaire de la fenêtre de configuration
+    function toggleConfig() {
+        configOpen = !configOpen;
+        configDiv.style.display = configOpen ? 'block' : 'none';
+    }
+
+    document.getElementById('close-crosshair-config').onclick = toggleConfig;
+
+    document.getElementById('crosshair-color').oninput = function(e) {
+        crosshairColor = e.target.value;
+        drawCrosshair();
+    };
+    document.getElementById('crosshair-thickness').oninput = function(e) {
+        crosshairThickness = parseInt(e.target.value, 10);
+        drawCrosshair();
+    };
+    document.getElementById('crosshair-length').oninput = function(e) {
+        crosshairLength = parseInt(e.target.value, 10);
+        drawCrosshair();
+    };
+    document.getElementById('crosshair-gap').oninput = function(e) {
+        crosshairGap = parseInt(e.target.value, 10);
+        drawCrosshair();
+    };
+
+    // Afficher la config avec ';'
+    window.addEventListener('keydown', function(e) {
+        // key ; ou ; sur AZERTY et QWERTY
+        if (e.key === ';' && !configOpen) {
+            toggleConfig();
+        } else if (e.key === 'Escape' && configOpen) {
+            toggleConfig();
+        }
+    });
+
+    // Premier dessin
+    drawCrosshair();
+})();

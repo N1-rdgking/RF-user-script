@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Ajoute un viseur personnalisable en forme de + à Narrow One, avec une fenêtre de configuration accessible via ';'
-// @author       Copilot
+// @author       XxkingorexX
 // @match         https://narrow.one/
 // @grant        none
 // ==/UserScript==
